@@ -62,6 +62,7 @@ app.post(
         });
         return;
       }
+      
 
       const result = await extractTrackChanges(req.file.buffer);
 
