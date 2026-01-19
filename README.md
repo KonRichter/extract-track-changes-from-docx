@@ -17,6 +17,13 @@ npm install
 
 ## Usage
 
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `API_KEY` | API key for authentication. If set, all requests must include this key. | No |
+| `PORT` | Server port (default: 3000) | No |
+
 ### Start the server
 
 ```bash
@@ -26,6 +33,9 @@ npm run dev
 # Production mode
 npm run build
 npm start
+
+# With API key protection
+API_KEY=your-secret-key npm run dev
 ```
 
 ### API Endpoint
@@ -43,7 +53,17 @@ Upload a `.docx` file to extract all track changes.
 #### Example using cURL
 
 ```bash
+# Without API key (if API_KEY env var is not set)
 curl -X POST http://localhost:3000/extract-track-changes \
+  -F "file=@path/to/your/document.docx"
+
+# With API key (via header)
+curl -X POST http://localhost:3000/extract-track-changes \
+  -H "x-api-key: your-secret-key" \
+  -F "file=@path/to/your/document.docx"
+
+# With API key (via query param)
+curl -X POST "http://localhost:3000/extract-track-changes?api_key=your-secret-key" \
   -F "file=@path/to/your/document.docx"
 ```
 

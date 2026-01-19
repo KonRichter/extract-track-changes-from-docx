@@ -1,9 +1,28 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import multer from "multer";
 import { extractTrackChanges } from "./extractTrackChanges";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const API_KEY = process.env.API_KEY;
+
+// API Key authentication middleware
+const authenticateApiKey = (req: Request, res: Response, next: NextFunction): void => {
+  // Skip auth if no API_KEY is configured
+  if (!API_KEY) {
+    next();
+    return;
+  }
+
+  const providedKey = req.headers["x-api-key"] || req.query.api_key;
+
+  if (!providedKey || providedKey !== API_KEY) {
+    res.status(401).json({ error: "Unauthorized. Invalid or missing API key." });
+    return;
+  }
+
+  next();
+};
 
 // Configure multer for file uploads (memory storage)
 const upload = multer({
@@ -33,6 +52,7 @@ app.get("/health", (_req: Request, res: Response) => {
 // POST endpoint to extract track changes
 app.post(
   "/extract-track-changes",
+  authenticateApiKey,
   upload.single("file"),
   async (req: Request, res: Response): Promise<void> => {
     try {
